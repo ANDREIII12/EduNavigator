@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EduNavigator</title>
+
+  <style>
+    body {font-family: Arial, sans-serif; margin: 0; background-color: #f8f9fa;}
+    header { background-color: #004aad; color: white; padding: 1rem 2rem; position: relative;}
+    h1 {margin: 0;padding: 1rem; background-color: rgb(255, 255, 255); color: rgb(6, 19, 189); text-align: center; border-radius: 5px;}
+    .container {max-width: 1200px; margin: auto; padding: 1rem; align-items: right;}
+    .search-filter {display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;}
+    input, select, button {padding: 0.5rem; border: 1px solid #ffffff; border-radius: 5px; }
+    .universities {display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;}
+    .card { background: #fff; padding: 1rem; border-radius: 8px; margin-top: 1rem; box-shadow: 0 0 4px rgba(0, 0, 0, 0.1); transition: transform 0.2s; }
+    .card h2 {margin-top: 0;}
+    .card:hover {transform: scale(1.02);}
+    .card-img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
+    .courses {margin-top: 0.5rem;}
+    .courses li {font-size: 0.9rem;}
+    .extended-info {display: none; margin-top: 1rem; background: #f1f1f1; padding: 0.5rem; border-radius: 5px;}
+    button {cursor: pointer; background-color: #004aad; color: white; border: none; margin-top: 0.5rem;outline: none;}
+    .compare {background: rgb(255, 255, 255), 0, 0; border-radius: 8px; padding: 1rem; margin-top: 2rem; box-shadow: 0 0 4px rgba(0,0,0,0.1);}
+    .compare-table {width: 100%; border-collapse: collapse;}
+    .compare-table th, .compare-table td {border: 1px solid #ddd; padding: 0.5rem; text-align: left;}
+    .compare-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 20px; background: #ffffff;  border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); font-family: 'Poppins', sans-serif;}
+    .compare-table th, .compare-table td { padding: 14px 16px; text-align: left; vertical-align: top; }
+    .compare-table th { Background-color: #0078d7; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
+    .compare-table tr:nth-child(even) td { background-color: #f9f9f9;}
+    .compare-table tr:hover td { background-color: #eef6ff; transition: background 0.3s; }
+    .compare-table td:first-child { font-weight: 600; color: #333; background-color: #f0f4f9; width: 160px; }
+    .compare-table td ul { list-style: none; padding: 0; margin: 0; }
+    .compare-table td ul li { padding: 4px 0; border-bottom: 1px solid #e5e5e5; }
+    .compare-table td ul li:last-child { border-bottom: none;}
+    .compare-table a { color: #0078d7; text-decoration: none; font-weight: 500; }
+    .compare-table a:hover { text-decoration: underline;}
+    footer {text-align: center; padding: 1rem; font-size: 0.9rem; color: #666;}
+  </style>
+  
+</head>
+<body>
+  <header>
+    <h1>EduNavigator</h1>
+    </header>
+  <div class="container">
+    <div class="search-filter">
+      <input type="text" id="searchInput" placeholder="Search by university or course...">
+      <input type="number" id="maxTuition" placeholder="Max tuition per semester">
+      <select id="sortBy">
+        <option value="name">Sort by name</option>
+        <option value="avgTuition">Sort by avg tuition</option>
+        <option value="location">Sort by location</option>
+      </select>
+      <button id="exportBtn">Export CSV</button>
+    </div>
+
+    <div id="universitiesList" class="universities"></div>
+
+    <div class="compare" id="compareSection">
+      <h3>Compare Selected Universities</h3>
+      <div id="compareContent">No universities selected yet.</div>
+    </div>
+  <footer>
+    <p>All Rights Reserved @2025</p>
+    <p>Developed by Group 2 Developers</p>
+  </footer>
+  
+  </div>
+
+  <script>
+    const universities = [
+      {
+        id: 'u1',
+        name: 'Batangas State University Pablo Borbon Campus',
+        location: 'Rizal Avenue, Poblacion, Batangas City',
+        contact: '(+63 43) 779 8400',
+        Facebook: 'https://www.facebook.com/BatStateUTheNEU',
+        Website: 'https://batstateu.edu.ph/',
+        overview: 'Batangas State University (BatStateU) is a leading state university in Batangas City offering quality education in engineering, science, and technology, dedicated to innovation, research excellence, and community service.',
+        
+        courses: [
+          { code: 'BAELS', title: 'Bachelor of Arts in English Language Studies', tuitionPerSemester: 0 },
+  { code: 'BSBIO', title: 'Bachelor of Science in Biology', tuitionPerSemester: 0 },
+  { code: 'BSCHE', title: 'Bachelor of Science in Chemistry', tuitionPerSemester: 0 },
+  { code: 'BSCRIM', title: 'Bachelor of Science in Criminology', tuitionPerSemester: 0 },
+  { code: 'BSDC', title: 'Bachelor of Science in Development Communication', tuitionPerSemester: 0 },
+  { code: 'BSMATH', title: 'Bachelor of Science in Mathematics', tuitionPerSemester: 0 },
+  { code: 'BSPSY', title: 'Bachelor of Science in Psychology', tuitionPerSemester: 0 },
+
+  { code: 'BSCE', title: 'Bachelor of Science in Civil Engineering', tuitionPerSemester: 0 },
+  { code: 'BSEE', title: 'Bachelor of Science in Electrical Engineering', tuitionPerSemester: 0 },
+  { code: 'BSECE', title: 'Bachelor of Science in Electronics Engineering', tuitionPerSemester: 0 },
+  { code: 'BSME', title: 'Bachelor of Science in Mechanical Engineering', tuitionPerSemester: 0 },
+  { code: 'BSCEng', title: 'Bachelor of Science in Computer Engineering', tuitionPerSemester: 0 },
+  { code: 'BSIE', title: 'Bachelor of Science in Industrial Engineering', tuitionPerSemester: 0 },
+  { code: 'BSSan', title: 'Bachelor of Science in Sanitary Engineering', tuitionPerSemester: 0 },
+  { code: 'BSEnSan', title: 'Bachelor of Science in Environmental and Sanitary Engineering', tuitionPerSemester: 0 },
+  { code: 'BSARCH', title: 'Bachelor of Science in Architecture', tuitionPerSemester: 0 },
+
+  { code: 'BSA', title: 'Bachelor of Science in Accountancy', tuitionPerSemester: 0 },
+  { code: 'BSMA', title: 'Bachelor of Science in Management Accounting', tuitionPerSemester: 0 },
+  { code: 'BSBA-BE', title: 'Bachelor of Science in Business Administration major in Business Economics', tuitionPerSemester: 0 },
+  { code: 'BSBA-FM', title: 'Bachelor of Science in Business Administration major in Financial Management', tuitionPerSemester: 0 },
+  { code: 'BSBA-HRM', title: 'Bachelor of Science in Business Administration major in Human Resource Management', tuitionPerSemester: 0 },
+  { code: 'BSBA-MM', title: 'Bachelor of Science in Business Administration major in Marketing Management', tuitionPerSemester: 0 },
+  { code: 'BSBA-OM', title: 'Bachelor of Science in Business Administration major in Operations Management', tuitionPerSemester: 0 },
+  { code: 'BSE', title: 'Bachelor of Science in Entrepreneurship', tuitionPerSemester: 0 },
+  { code: 'BSHM', title: 'Bachelor of Science in Hospitality Management', tuitionPerSemester: 0 },
+  { code: 'BPA', title: 'Bachelor in Public Administration', tuitionPerSemester: 0 },
+
+  { code: 'BSDC2', title: 'Bachelor of Science in Development Communication', tuitionPerSemester: 0 },
+  { code: 'BACOM', title: 'Bachelor of Arts in Communication', tuitionPerSemester: 0 },
+          
+        ],
+        programs: [
+       'College of Arts and Sciences:',
+       'Bachelor of Arts in English Language Studies',
+       'Bachelor of Science in Biology',
+       'Bachelor of Science in Chemistry',
+       'Bachelor of Science in Criminology',
+       ' Bachelor of Science in Development Communication',
+       ' Bachelor of Science in Mathematics',
+       ' Bachelor of Science in Psychology',
+
+       'College of Engineering, Architecture, and Fine Arts:',
+       'Bachelor of Science in Civil Engineering',
+       'Bachelor of Science in Electrical Engineering',
+       'Bachelor of Science in Electronics Engineering',
+       'Bachelor of Science in Mechanical Engineering',
+       'Bachelor of Science in Computer Engineering',
+       'Bachelor of Science in Industrial Engineering',
+       'Bachelor of Science in Sanitary Engineering',
+       'Bachelor of Science in Environmental and Sanitary Engineering',
+       'Bachelor of Science in Architecture',
+
+       'College of Accountancy, Business, Economics, and International Hospitality Management:',
+       'Bachelor of Science in Accountancy',
+       'Bachelor of Science in Management Accounting',
+       'Bachelor of Science in Business Administration major in Business Economics',
+       'Bachelor of Science in Business Administration major in Financial Management',
+       'Bachelor of Science in Business Administration major in Human Resource Management',
+       'Bachelor of Science in Business Administration major in Marketing Management',
+       'Bachelor of Science in Business Administration major in Operations Management',
+       'Bachelor of Science in Entrepreneurship',
+       'Bachelor of Science in Hospitality Management',
+       'Bachelor in Public Administration',
+
+       'College of Arts and Communication:',
+       'Bachelor of Science in Development Communication',
+       'Bachelor of Arts in Communication'
+        ],
+        facilities: [
+        'Health Services Office',
+  'Dental Clinic',
+  'STEAM Library Building',
+  'Integrated School Building',
+  'University Facade or “Gateway to Greatness” Project',
+  'Green and Open Public Spaces',
+  'Material Recovery Facility (MRF)',
+  'Solar-Powered Buildings',
+  'Research and Innovation Centers',
+  'Student Activity Areas',
+  'Laboratories and Computer Rooms',
+  'Audio-Visual Rooms',
+  'Gymnasium and Sports Facilities',
+  'Canteens and Food Hubs',
+  'Parking Areas and Transport Access Points',
+      ],
+        achievements:[
+          'Declared as the National Engineering University of the Philippines under Republic Act No. 11694 (April 2022).',
+          'Recognized as a Center of Excellence in Electronics Engineering.',
+          'Recognized as a Center of Development in Mechanical Engineering, Electrical Engineering, Teacher Education, and Development Communication.',
+          'Attained Level IV state university classification.',
+         'Received ISO 9001:2015 certification for quality management systems.',
+         'Recognized as a Regional Center for Disaster Risk Management Education and Research.',
+         'Awarded three stars by the QS Stars rating system.',
+         'KIST Park (Knowledge, Innovation, and Science Technology Park) proclaimed as a Special Economic Zone.',
+        'Inaugurated the 10-storey Emilio Aguinaldo Building, the tallest academic structure in the CALABARZON region.',
+        'Ranked 300th in the 2023 UI GreenMetric World University Rankings among 1,183 universities globally.'
+        ],
+        scholarships: [
+        'DOST – Science and Technology (S&T) Scholarship',
+        'CHED Merit Scholarship Program (CMSP)',
+        'Tulong Dunong Program (TDP)',
+        'Tertiary Education Subsidy (TES)',
+        'Expanded Students’ Grants-in-Aid Program for Poverty Alleviation (ESGP-PA)',
+        'Local Government Unit (LGU) Scholarships',
+        'Congressional or Senatorial Scholarships'
+        ]
+      },
+      {
+        id: 'u2',
+        name: 'Batangas State University Alangilan Campus',
+        location: 'Barangay Alangilan, Batangas City',
+        contact: '(043) 980-0385',
+        Facebook: 'https://www.facebook.com/bsu.alangilan',
+        Website: 'https://batstateu.edu.ph/alangilan/',
+        overview: 'Batangas State University (BatStateU) is a leading state university in Batangas City offering quality education in engineering, science, and technology, dedicated to innovation, research excellence, and community service.',
+        
+        courses: [
+          { code: '', title: 'College of Engineering, Architecture, and Fine Arts:', tuitionPerSemester: 0 },
+  { code: 'BSCE', title: 'Bachelor of Science in Civil Engineering', tuitionPerSemester: 0 },
+  { code: 'BSEE', title: 'Bachelor of Science in Electrical Engineering', tuitionPerSemester: 0 },
+  { code: 'BSECE', title: 'Bachelor of Science in Electronics Engineering', tuitionPerSemester: 0 },
+  { code: 'BSME', title: 'Bachelor of Science in Mechanical Engineering', tuitionPerSemester: 0 },
+  { code: 'BSIE', title: 'Bachelor of Science in Industrial Engineering', tuitionPerSemester: 0 },
+  { code: 'BSSan', title: 'Bachelor of Science in Sanitary Engineering', tuitionPerSemester: 0 },
+  { code: 'BSCHE', title: 'Bachelor of Science in Chemical Engineering', tuitionPerSemester: 0 },
+  { code: 'BSCompE', title: 'Bachelor of Science in Computer Engineering', tuitionPerSemester: 0 },
+  { code: 'BSARCH', title: 'Bachelor of Science in Architecture', tuitionPerSemester: 0 },
+  { code: 'BFA-VC', title: 'Bachelor of Fine Arts major in Visual Communication', tuitionPerSemester: 0 },
+
+  { code: '', title: 'College of Industrial Technology:', tuitionPerSemester: 0 },
+  { code: 'BIT-Auto', title: 'Bachelor of Industrial Technology major in Automotive Technology', tuitionPerSemester: 0 },
+  { code: 'BIT-Civil', title: 'Bachelor of Industrial Technology major in Civil Technology', tuitionPerSemester: 0 },
+  { code: 'BIT-Comp', title: 'Bachelor of Industrial Technology major in Computer Technology', tuitionPerSemester: 0 },
+  { code: 'BIT-Draft', title: 'Bachelor of Industrial Technology major in Drafting Technology', tuitionPerSemester: 0 },
+  { code: 'BIT-Elect', title: 'Bachelor of Industrial Technology major in Electrical Technology', tuitionPerSemester: 0 },
+  { code: 'BIT-ElecTech', title: 'Bachelor of Industrial Technology major in Electronics Technology', tuitionPerSemester: 0 },
+  { code: 'BIT-Food', title: 'Bachelor of Industrial Technology major in Food Technology', tuitionPerSemester: 0 },
+  { code: 'BIT-Inst', title: 'Bachelor of Industrial Technology major in Instrumentation and Control Technology', tuitionPerSemester: 0 },
+  { code: 'BIT-Mech', title: 'Bachelor of Industrial Technology major in Mechanical Technology', tuitionPerSemester: 0 },
+  { code: 'BIT-Mechat', title: 'Bachelor of Industrial Technology major in Mechatronics Technology', tuitionPerSemester: 0 },
+  { code: 'BIT-Weld', title: 'Bachelor of Industrial Technology major in Welding and Fabrication Technology', tuitionPerSemester: 0 },
+
+  { code: '', title: 'College of Informatics and Computing Sciences:', tuitionPerSemester: 0 },
+  { code: 'BSIT', title: 'Bachelor of Science in Information Technology', tuitionPerSemester: 0 },
+  { code: 'BSCS', title: 'Bachelor of Science in Computer Science', tuitionPerSemester: 0 },
+        ],
+        programs: [
+       'College of Engineering, Architecture, and Fine Arts:',
+  'Bachelor of Science in Civil Engineering',
+  'Bachelor of Science in Electrical Engineering',
+  'Bachelor of Science in Electronics Engineering',
+  'Bachelor of Science in Mechanical Engineering',
+  'Bachelor of Science in Industrial Engineering',
+  'Bachelor of Science in Sanitary Engineering',
+  'Bachelor of Science in Chemical Engineering',
+  'Bachelor of Science in Computer Engineering',
+  'Bachelor of Science in Architecture',
+  'Bachelor of Fine Arts major in Visual Communication',
+
+  'College of Industrial Technology:',
+  'Bachelor of Industrial Technology major in Automotive Technology',
+  'Bachelor of Industrial Technology major in Civil Technology',
+  'Bachelor of Industrial Technology major in Computer Technology',
+  'Bachelor of Industrial Technology major in Drafting Technology',
+  'Bachelor of Industrial Technology major in Electrical Technology',
+  'Bachelor of Industrial Technology major in Electronics Technology',
+  'Bachelor of Industrial Technology major in Food Technology',
+  'Bachelor of Industrial Technology major in Instrumentation and Control Technology',
+  'Bachelor of Industrial Technology major in Mechanical Technology',
+  'Bachelor of Industrial Technology major in Mechatronics Technology',
+  'Bachelor of Industrial Technology major in Welding and Fabrication Technology',
+
+  'College of Informatics and Computing Sciences:',
+  'Bachelor of Science in Information Technology',
+  'Bachelor of Science in Computer Science'
+        ],
+         facilities: [
+        'Fitness Development Center',
+  'Advanced Engineering and Technology Laboratories',
+  'Research and Innovation Hub',
+  'STEER Hub (Science, Technology, Engineering and Environment Research Hub)',
+  'Interactive Learning Spaces and Classrooms',
+  'Specialized Engineering Laboratories',
+  'Library and Digital Resource Center',
+  'CAFA Amphitheater'
+
+      ],
+        achievements:[
+          'Declared as the National Engineering University of the Philippines under Republic Act No. 11694 (April 2022).',
+          'Recognized as a Center of Excellence in Electronics Engineering.',
+          'Recognized as a Center of Development in Mechanical Engineering, Electrical Engineering, Teacher Education, and Development Communication.',
+          'Attained Level IV state university classification.',
+         'Received ISO 9001:2015 certification for quality management systems.',
+         'Recognized as a Regional Center for Disaster Risk Management Education and Research.',
+         'Awarded three stars by the QS Stars rating system.',
+         'KIST Park (Knowledge, Innovation, and Science Technology Park) proclaimed as a Special Economic Zone.',
+        'Inaugurated the 10-storey Emilio Aguinaldo Building, the tallest academic structure in the CALABARZON region.',
+        'Ranked 300th in the 2023 UI GreenMetric World University Rankings among 1,183 universities globally.'
+        ],
+        scholarships: [
+        'DOST – Science and Technology (S&T) Scholarship',
+        'CHED Merit Scholarship Program (CMSP)',
+        'Tulong Dunong Program (TDP)',
+        'Tertiary Education Subsidy (TES)',
+        'Expanded Students’ Grants-in-Aid Program for Poverty Alleviation (ESGP-PA)',
+        'Local Government Unit (LGU) Scholarships',
+        'Congressional or Senatorial Scholarships'
+        ]
+      },
+      {
+        id: 'u3',
+        name: 'University of Batangas',
+        location: 'Brgy, Hilltop Rd, Batangas City, 4200 Batangas',
+        contact: '(043) 723 1446',
+        Facebook: 'https://www.facebook.com/ubatangas',
+        Website: 'https://ub.edu.ph/',
+        overview: 'The University of Batangas is a distinguished private institution committed to providing quality education that empowers students to become competent, ethical, and globally competitive professionals.',
+        courses: [
+           { code: 'BSA', title: 'Bachelor of Science in Accountancy', tuitionPerSemester: 25000 },
+  { code: 'BSAIS', title: 'Bachelor of Science in Accounting Information System', tuitionPerSemester: 25000 },
+  { code: 'BSBA', title: 'Bachelor of Science in Business Administration', tuitionPerSemester: 22000 },
+  { code: 'BSEnt', title: 'Bachelor of Science in Entrepreneurship', tuitionPerSemester: 22000 },
+  { code: 'BSHM', title: 'Bachelor of Science in Hospitality Management', tuitionPerSemester: 22000 },
+  { code: 'BSIT', title: 'Bachelor of Science in Information Technology', tuitionPerSemester: 25000 },
+  { code: 'BSCS', title: 'Bachelor of Science in Computer Science', tuitionPerSemester: 25000 },
+  { code: 'BSIS', title: 'Bachelor of Science in Information Systems', tuitionPerSemester: 25000 },
+  { code: 'BSN', title: 'Bachelor of Science in Nursing', tuitionPerSemester: 30000 },
+  { code: 'BSPT', title: 'Bachelor of Science in Physical Therapy', tuitionPerSemester: 35000 },
+  { code: 'BSPsy', title: 'Bachelor of Science in Psychology', tuitionPerSemester: 22000 },
+  { code: 'BSCrim', title: 'Bachelor of Science in Criminology', tuitionPerSemester: 22000 },
+  { code: 'BSEd', title: 'Bachelor of Science in Education', tuitionPerSemester: 22000 },
+  { code: 'BEED', title: 'Bachelor of Elementary Education', tuitionPerSemester: 22000 },
+  { code: 'BSED', title: 'Bachelor of Secondary Education', tuitionPerSemester: 22000 },
+  { code: 'BIndEd', title: 'Bachelor of Industrial Education', tuitionPerSemester: 22000 },
+        ], 
+        programs: [
+         'Bachelor of Science in Accountancy – ₱25,000 per semester',
+'Bachelor of Science in Accounting Information System – ₱25,000 per semester',
+'Bachelor of Science in Business Administration – ₱22,000 per semester',
+'Bachelor of Science in Entrepreneurship – ₱22,000 per semester',
+'Bachelor of Science in Hospitality Management – ₱22,000 per semester',
+'Bachelor of Science in Information Technology – ₱25,000 per semester',
+'Bachelor of Science in Computer Science – ₱25,000 per semester',
+'Bachelor of Science in Information Systems – ₱25,000 per semester',
+'Bachelor of Science in Nursing – ₱30,000 per semester',
+'Bachelor of Science in Physical Therapy – ₱35,000 per semester',
+'Bachelor of Science in Psychology – ₱22,000 per semester',
+'Bachelor of Science in Criminology – ₱22,000 per semester',
+'Bachelor of Science in Education – ₱22,000 per semester',
+'Bachelor of Elementary Education – ₱22,000 per semester',
+'Bachelor of Secondary Education – ₱22,000 per semester',
+'Bachelor of Industrial Education – ₱22,000 per semester'
+        ],
+         facilities: [
+        'Laboratories',
+'Libraries',
+'Multi-Purpose Halls',
+'University Canteen',
+'University Shop',
+'Social Rooms',
+'Support Center for Students',
+'Religious Facilities',
+'Sports Gym Facility',
+'Outdoor Courts',
+'Administrative Offices',
+'Student Accommodation',
+'Bookstore'
+      ],
+        achievements:[
+          'First Female President Installed',
+'Inaugural UCAL eSports Champion',
+'UCAL eSports Title Defense',
+'Recognition of Outstanding Student and Organization Contributions',
+'Best Paper Award at 4th UBIAN Conference',
+'CHED Center of Excellence in Electronics Engineering',
+'CHED Center of Development in Electrical, Mechanical, and Teacher Education',
+'High Number of Accredited Programs in Region IV'
+        ],
+        scholarships: [
+        'Corps Commander Citizenship Scholar',
+'PD 451 Scholarship',
+'Cultural Scholarship',
+'Three in the Family Discount',
+'Dean’s List Scholarship',
+'Student Assistance or Work-Study Program',
+'Government and Private Sector Grants'
+        ]
+      },
+      {
+        id: 'u4',
+        name: 'University of the Philippines',
+        location: 'Roxas Ave, Diliman, Quezon City, Metro Manila',
+        contact: '289818500',
+        Facebook: 'https://www.facebook.com/upsystem',
+        Website: 'https://up.edu.ph/',
+        overview: 'The University of the Philippines is the country’s premier state university, recognized for academic excellence, cutting-edge research, and commitment to public service and nation-building.',
+        courses: [
+           { code: 'BACom', title: 'Bachelor of Arts in Communication', tuitionPerSemester: 0 },
+  { code: 'BAFil', title: 'Bachelor of Arts in Filipino', tuitionPerSemester: 0 },
+  { code: 'BACW', title: 'Bachelor of Arts in Creative Writing', tuitionPerSemester: 0 },
+  { code: 'BAJ', title: 'Bachelor of Arts in Journalism', tuitionPerSemester: 0 },
+  { code: 'BASC', title: 'Bachelor of Arts in Speech Communication', tuitionPerSemester: 0 },
+  { code: 'BAPol', title: 'Bachelor of Arts in Political Science', tuitionPerSemester: 0 },
+  { code: 'BAPsy', title: 'Bachelor of Arts in Psychology', tuitionPerSemester: 0 },
+  { code: 'BASoc', title: 'Bachelor of Arts in Sociology', tuitionPerSemester: 0 },
+  { code: 'BAAnth', title: 'Bachelor of Arts in Anthropology', tuitionPerSemester: 0 },
+  { code: 'BAPhi', title: 'Bachelor of Arts in Philosophy', tuitionPerSemester: 0 },
+  { code: 'BSBio', title: 'Bachelor of Science in Biology', tuitionPerSemester: 0 },
+  { code: 'BSChem', title: 'Bachelor of Science in Chemistry', tuitionPerSemester: 0 },
+  { code: 'BSPhy', title: 'Bachelor of Science in Applied Physics', tuitionPerSemester: 0 },
+  { code: 'BSMath', title: 'Bachelor of Science in Mathematics', tuitionPerSemester: 0 },
+  { code: 'BSStats', title: 'Bachelor of Science in Statistics', tuitionPerSemester: 0 },
+  { code: 'BSCE', title: 'Bachelor of Science in Civil Engineering', tuitionPerSemester: 0 },
+  { code: 'BSME', title: 'Bachelor of Science in Mechanical Engineering', tuitionPerSemester: 0 },
+  { code: 'BSEE', title: 'Bachelor of Science in Electrical Engineering', tuitionPerSemester: 0 },
+  { code: 'BSCompE', title: 'Bachelor of Science in Computer Engineering', tuitionPerSemester: 0 },
+  { code: 'BSChemE', title: 'Bachelor of Science in Chemical Engineering', tuitionPerSemester: 0 },
+  { code: 'BSBA', title: 'Bachelor of Science in Business Administration', tuitionPerSemester: 0 },
+  { code: 'BSA', title: 'Bachelor of Science in Accountancy', tuitionPerSemester: 0 },
+  { code: 'BSEcon', title: 'Bachelor of Science in Economics', tuitionPerSemester: 0 },
+  { code: 'BSED', title: 'Bachelor of Secondary Education', tuitionPerSemester: 0 },
+  { code: 'BEED', title: 'Bachelor of Elementary Education', tuitionPerSemester: 0 },
+  { code: 'BFAVisCom', title: 'Bachelor of Fine Arts in Visual Communication', tuitionPerSemester: 0 },
+  { code: 'BFAStudio', title: 'Bachelor of Fine Arts in Studio Arts', tuitionPerSemester: 0 },
+  { code: 'BFAInd', title: 'Bachelor of Fine Arts in Industrial Design', tuitionPerSemester: 0 },
+  { code: 'BFAArch', title: 'Bachelor of Fine Arts in Architecture', tuitionPerSemester: 0 },
+  { code: 'BSPE', title: 'Bachelor of Science in Physical Education', tuitionPerSemester: 0 },
+  { code: 'BSSS', title: 'Bachelor of Science in Sports Science', tuitionPerSemester: 0 }
+        ],
+        programs: [
+       'Bachelor of Arts in Communication',
+'Bachelor of Arts in Filipino',
+'Bachelor of Arts in Creative Writing',
+'Bachelor of Arts in Journalism',
+'Bachelor of Arts in Speech Communication',
+'Bachelor of Arts in Political Science',
+'Bachelor of Arts in Psychology',
+'Bachelor of Arts in Sociology',
+'Bachelor of Arts in Anthropology',
+'Bachelor of Arts in Philosophy',
+'Bachelor of Science in Biology',
+'Bachelor of Science in Chemistry',
+'Bachelor of Science in Applied Physics',
+'Bachelor of Science in Mathematics',
+'Bachelor of Science in Statistics',
+'Bachelor of Science in Civil Engineering',
+'Bachelor of Science in Mechanical Engineering',
+'Bachelor of Science in Electrical Engineering',
+'Bachelor of Science in Computer Engineering',
+'Bachelor of Science in Chemical Engineering',
+'Bachelor of Science in Business Administration',
+'Bachelor of Science in Accountancy',
+'Bachelor of Science in Economics',
+'Bachelor of Secondary Education',
+'Bachelor of Elementary Education',
+'Bachelor of Fine Arts in Visual Communication',
+'Bachelor of Fine Arts in Studio Arts',
+'Bachelor of Fine Arts in Industrial Design',
+'Bachelor of Fine Arts in Architecture',
+'Bachelor of Science in Physical Education',
+'Bachelor of Science in Sports Science'
+        ],
+        facilities: [
+        'Academic Buildings and Lecture Halls',
+'Libraries and Learning Resource Centers',
+'Research Laboratories and Centers',
+'Computer and IT Laboratories',
+'Multi-Purpose Halls and Auditoriums',
+'Sports Complex and Gymnasiums',
+'Outdoor Sports Fields and Courts',
+'Student Dormitories and Housing Facilities',
+'Canteens and Food Courts',
+'Student Centers and Lounges',
+'Health and Wellness Centers',
+'Cultural and Performing Arts Centers',
+'Administrative Offices',
+'Parking Areas and Transportation Facilities',
+'Gardens and Open Green Spaces'
+      ],
+        achievements:[
+          'Ranked as the top university in the Philippines by QS World University Rankings',
+'Recognized as a Center of Excellence and Center of Development in multiple academic programs by CHED',
+'Produced numerous national leaders, scientists, and scholars in various fields',
+'Awarded for research and innovation contributions locally and internationally',
+'Consistently excelled in national and international competitions in arts, sciences, and engineering',
+'UP Dissolving Student Organizations recognized for outstanding community service and civic engagement',
+'Known for highly competitive performance in board exams, including medicine, law, and engineering',
+'Achieved multiple awards in cultural festivals and performing arts competitions',
+'Partnered with international universities and organizations for research, exchange, and development programs'
+        ],
+        scholarships: [
+        'Grants-in-Aid Program (GIAP)',
+'Tertiary Education Subsidy (TES)',
+'Student and Graduate Assistantships (SAGA)',
+'UP Presidential Scholarship',
+'UP Presidential Leadership Grant',
+'UP Diliman Performing Arts Scholarship Program (UPD PASP)',
+'UP Diliman Visual Arts and Cultural Studies Scholarship Program (UPD VACSSP)',
+'UP College of Nursing Scholarship Grants'
+        ]
+      },
+    ];
+
+    const selected = new Set();
+
+    const searchInput = document.getElementById('searchInput');
+    const maxTuition = document.getElementById('maxTuition');
+    const sortBy = document.getElementById('sortBy');
+    const universitiesList = document.getElementById('universitiesList');
+    const compareContent = document.getElementById('compareContent');
+    const exportBtn = document.getElementById('exportBtn');
+
+    function displayUniversities() {
+      let list = [...universities];
+      const query = searchInput.value.toLowerCase();
+      const maxT = Number(maxTuition.value) || null;
+      if (query) {
+        list = list.filter(u => u.name.toLowerCase().includes(query) || u.courses.some(c => c.title.toLowerCase().includes(query)));
+      }
+      if (maxT) {
+  list = list.filter(u => {
+    const extendedSection = document.getElementById(`extended-${u.id}`);
+    const isViewMoreOpen = extendedSection && extendedSection.style.display === 'block';
+   
+    if (isViewMoreOpen) {
+      return u.courses.some(c => c.tuitionPerSemester <= maxT);
+    } else {
+      // Ignore tuition filter if view more is closed
+      return true;
+    }
+  });
+}
+
+// Sort
+if (sortBy.value === 'avgTuition') {
+  list.sort((a,b) => {
+    const extendedA = document.getElementById(`extended-${a.id}`);
+    const extendedB = document.getElementById(`extended-${b.id}`);
+    const isAOpen = extendedA && extendedA.style.display === 'block';
+    const isBOpen = extendedB && extendedB.style.display === 'block';
+
+    const avgA = isAOpen ? avgTuition(a) : 0;
+    const avgB = isBOpen ? avgTuition(b) : 0;
+    return avgA - avgB;
+  });
+} else {
+  list.sort((a,b) => a.name.localeCompare(b.name));
+}
+
+      universitiesList.innerHTML = list.map(u => `
+        <div class="card" id="card-${u.id}">
+        ${u.image ? `<img src="${u.image}" class="card-img" style="width:100%; height:auto;">` : ''}
+          <h3>${u.name}</h3>
+          <p><strong>Location:</strong> ${u.location}</p>
+          <p><strong>Contact:</strong> ${u.contact}</p>
+          <p>${u.overview}</p>
+          <p><strong>Facebook:</strong> <a href="${u.Facebook}" target="_blank">Visit</a></p>
+          <!-- Courses hidden by default; used for search/filter only -->
+          <ul class="courses" style="display:none;"> ${u.courses.map(c => `<li>${c.code} - ${c.title} - ₱${c.tuitionPerSemester.toLocaleString()} / sem</li>`).join('')} </ul>
+          <!-- This line adds your requested text below program/Average Tuition info --> <p style="color:#007bff;font-weight:bold;">For more info, click View More</p>
+          <button onclick="toggleSelect('${u.id}')">${selected.has(u.id) ? 'Remove from Compare' : 'Compare'}</button>
+          <button onclick="window.location.href='https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(u.name)}'">Get Directions</button>
+          <button onclick="window.location.href='${u.Website}'">Apply Now</button>
+          <button onclick="toggleViewMore('${u.id}')">View More</button>
+          <!-- Hidden extended info section -->
+          <div class="extended-info" id="extended-${u.id}">
+          <p><strong>Programs Offered:</strong></p>
+           ${Array.isArray(u.programs) ? `<ul>${u.programs.map(p => `<li>${p}</li>`).join('')}</ul>`: `<p>${u.programs || 'Information not available'}</p>`}
+            <p><strong>Facilities:</strong></p>
+            ${Array.isArray(u.facilities) ? `<ul>${u.facilities.map(f => `<li>${f}</li>`).join('')}</ul>`: `<p>${u.facilities || 'Information not available'}</p>`}
+            <p><strong>Achievements:</strong></p>
+            ${Array.isArray(u.achievements) ? `<ul>${u.achievements.map(a => `<li>${a}</li>`).join('')}</ul>`: `<p>${u.achievements || 'Information not available'}</p>`}
+            <p><strong>Scholarships:</strong></p>
+            ${Array.isArray(u.scholarships) ? `<ul>${u.scholarships.map(s => `<li>${s}</li>`).join('')}</ul>`: `<p>${u.scholarships || 'Information not available'}</p>`}
+          </div>
+        </div>
+
+      `).join('');
+      }
+
+    function toggleViewMore(id) {
+      const section = document.getElementById(`extended-${id}`);
+      const button = document.querySelector(`#card-${id} button[onclick*="toggleViewMore"]`);
+
+      //If hidden, show it; 
+      if (section.style.display === 'none' || section.style.display === '') {
+        section.style.display = 'block';
+        button.textContent = 'View Less';
+      //If shown, hide it
+      } else {
+        section.style.display = 'none';
+        button.textContent = 'View More';
+      }
+    }
+
+    function avgTuition(u) {
+      return Math.round(u.courses.reduce((s,c)=>s+(c.tuitionPerSemester||0),0)/u.courses.length);
+    }
+
+    function toggleSelect(id) {
+      if (selected.has(id)) selected.delete(id); else selected.add(id);
+      displayUniversities();
+      displayCompare();
+    }
+
+    function displayCompare() {
+      if (selected.size < 2) {
+        compareContent.innerHTML = 'Select at least two universities to compare.';
+        return;
+      }
+      const compareList = universities.filter(u => selected.has(u.id));
+      let html = '<table class="compare-table">';
+      html += '<tr><th>Field</th>' + compareList.map(u => `<th>${u.name}</th>`).join('') + '</tr>';
+      html += '<tr><td>Location</td>' + compareList.map(u => `<td>${u.location}</td>`).join('') + '</tr>';
+      html += '<tr><td>Contact</td>' + compareList.map(u => `<td>${u.contact}</td>`).join('') + '</tr>';
+      html += '<tr><td>Website</td>' + compareList.map(u => `<td><a href="${u.website}" target="_blank">Visit</a></td>`).join('') + '</tr>';
+      html += '<tr><td>Overview</td>' + compareList.map(u => `<td>${u.overview}</td>`).join('') + '</tr>';
+      html += '<tr><td>Courses</td>' + compareList.map(u => `<td><ul>${u.courses.map(c=>`<li>${c.code} - ${c.title} - ₱${c.tuitionPerSemester}</li>`).join('')}</ul></td>`).join('') + '</tr>';
+      html += '<tr><td>Scholarship</td>' + compareList.map(u => `<td>${u.scholarships}</td>`).join('') + '</tr>';
+      html += '</table>';
+      compareContent.innerHTML = html;
+    }
+
+    function exportCSV() {
+      const rows = [['Name','Location','Contact','Website','Course Code','Course Title','TuitionPerSemester']];
+      universities.forEach(u => {
+        u.courses.forEach(c => rows.push([u.name,u.location,u.contact,u.website,c.code,c.title,c.tuitionPerSemester]));
+      });
+      const csv = rows.map(r => r.map(x => '"'+String(x).replace('"','""')+'"').join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'batangas_universities.csv';
+      a.click();
+    }
+
+     function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371; // km
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = 
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Radius of Earth in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) *
+      Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  document.getElementById("sortBy").addEventListener("change", function () {
+    if (this.value === "location") {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
+
+          const items = Array.from(document.querySelectorAll(".location-item, .university-item"));
+          items.forEach(item => {
+            const lat = parseFloat(item.dataset.lat);
+            const lng = parseFloat(item.dataset.lng);
+            if (!isNaN(lat) && !isNaN(lng)) {
+              const distance = getDistance(userLat, userLng, lat, lng);
+              item.dataset.distance = distance.toFixed(2);
+              item.querySelector(".distance")?.remove();
+              item.insertAdjacentHTML("beforeend", `<span class="distance"> (${distance.toFixed(2)} km away)</span>`);
+            }
+          });
+
+          const listContainer = document.getElementById("locationList") || document.getElementById("universityList");
+          if (listContainer) {
+            items.sort((a, b) => a.dataset.distance - b.dataset.distance);
+            listContainer.innerHTML = "";
+            items.forEach(i => listContainer.appendChild(i));
+          }
+
+        }, () => {
+          alert("Please allow location access to sort by your distance.");
+        });
+      } else {
+        alert("Geolocation is not supported by your browser.");
+      }
+    }
+  });
+    searchInput.addEventListener('input', displayUniversities);
+    maxTuition.addEventListener('input', displayUniversities);
+    sortBy.addEventListener('change', displayUniversities);
+    exportBtn.addEventListener('click', exportCSV);
+
+    displayUniversities();
+  </script>
+</body>
+</html>

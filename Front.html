@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EduNavigator | Welcome</title>
+  <style>
+    body { margin: 0; font-family: 'Arial', sans-serif; color: white; height: 100vh; display: flex; justify-content: center; align-items: center;text-align: center; overflow: hidden; background: linear-gradient(270deg, #004aad, #007bff, rgb(32, 77, 199), #004aad); background-size: 800% 800%; animation: moveBackground 15s ease infinite;}
+    @keyframes moveBackground { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; }}
+    .blur-box {background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 20px; padding: 3rem 4rem; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2); max-width: 600px; border: 1px solid rgba(255, 255, 255, 0.3); animation: fadeIn 1.2s ease;}
+    .logo {width: 120px; height: auto; margin-bottom: 1rem; animation: floatLogo 4s ease-in-out infinite;}
+    @keyframes floatLogo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    h1 { font-size: 3rem; margin-bottom: 0.5rem; letter-spacing: 1px; color: #ffffff;}
+    h1 span { color: #ffde59;}
+    p { font-size: 1.2rem; margin-bottom: 2rem; color: #f0f0f0; line-height: 1.5;}
+    button { background-color: #ffffff; color: #004aad; border: none; padding: 0.8rem 2rem; font-size: 1rem; border-radius: 25px; cursor: pointer; transition: all 0.3s ease; font-weight: bold; }
+    button:hover { transform: scale(1.05); }
+    footer { position: absolute; bottom: 15px; font-size: 0.9rem; color: rgba(255,255,255,0.8); }
+    @media (max-width: 600px) { .blur-box { padding: 2rem; } h1 { font-size: 2rem; } p { font-size: 1rem; } .logo { width: 90px; } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+  <div class="blur-box">
+    <h1>Welcome to <span>EduNavigator</span></h1>
+    <p>Your all-in-one platform for choosing the right university, program, and scholarship with ease.</p>
+    <button onclick="location.href='BAGONG WEB.html'">Get Started</button>
+  </div>
+</body>
+</html>
